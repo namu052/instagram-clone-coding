@@ -1,0 +1,32 @@
+# Codex CLI Configuration — Semi-Autonomous Profile
+# For: well-tested areas, routine tasks, trusted agents with guardrails
+
+[project]
+name = "instagram-clone"
+
+[model]
+default = "o4-mini"
+planning = "o3"
+
+[approval]
+mode = "auto-edit"
+# Auto-apply file edits; commands still need approval
+auto_approve_reads = true
+
+[sandbox]
+enabled = true
+writable_paths = ["src/", "tests/", "scripts/", "docs/"]
+network = false
+
+[guardrails]
+max_file_changes_per_task = 15
+max_lines_changed = 500
+blocked_commands = [
+  "rm -rf",
+  "git push --force",
+  "git reset --hard",
+  "DROP TABLE",
+  "chmod 777",
+]
+require_test_for_code_change = true
+require_verify_before_pr = true

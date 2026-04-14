@@ -1,0 +1,83 @@
+name: CI Pipeline
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target: [frontend, backend]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Frontend Lint
+        if: matrix.target == 'frontend'
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run lint
+
+      - name: Backend Lint
+        if: matrix.target == 'backend'
+        working-directory: backend
+        run: |
+          pip install -r requirements.txt
+          ruff check .
+
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - working-directory: frontend
+        run: |
+          npm ci
+          npx tsc --noEmit
+
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target: [frontend, backend]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Frontend Tests
+        if: matrix.target == 'frontend'
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run test -- --run --coverage
+
+      - name: Backend Tests
+        if: matrix.target == 'backend'
+        working-directory: backend
+        run: |
+          pip install -r requirements.txt
+          pytest --cov --cov-report=xml --tb=short
+
+  build:
+    runs-on: ubuntu-latest
+    needs: [lint, typecheck, test]
+    steps:
+      - uses: actions/checkout@v4
+      - working-directory: frontend
+        run: |
+          npm ci
+          npm run build
+
+  structure-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: bash scripts/check-structure.sh
+
+  merge-gate:
+    runs-on: ubuntu-latest
+    needs: [lint, typecheck, test, build, structure-check]
+    steps:
+      - run: echo "All gates passed — ready to merge"

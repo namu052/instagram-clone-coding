@@ -1,0 +1,32 @@
+# Codex CLI Configuration — Conservative Profile
+# For: security-sensitive work, production hotfixes, unfamiliar codebases
+
+[project]
+name = "instagram-clone"
+
+[model]
+default = "o4-mini"
+planning = "o3"
+
+[approval]
+mode = "suggest"
+# Every action requires explicit human approval
+auto_approve_reads = false
+
+[sandbox]
+enabled = true
+writable_paths = ["src/", "tests/"]  # No scripts/ or docs/ writes
+network = false
+
+[guardrails]
+max_file_changes_per_task = 5
+max_lines_changed = 200
+blocked_commands = [
+  "rm -rf",
+  "git push",
+  "git reset --hard",
+  "DROP TABLE",
+  "DELETE FROM",
+  "chmod 777",
+]
+require_test_for_code_change = true

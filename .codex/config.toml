@@ -1,0 +1,35 @@
+# Codex CLI Configuration — Default Profile
+# See also: config.conservative.toml, config.semi-autonomous.toml
+
+[project]
+name = "instagram-clone"
+description = "Instagram clone: Next.js + FastAPI + PostgreSQL"
+
+[model]
+default = "o4-mini"
+planning = "o3"
+
+[approval]
+# "suggest" = propose changes, human approves
+# "auto-edit" = auto-apply file edits, human approves commands
+# "full-auto" = auto-apply everything (dangerous)
+mode = "suggest"
+
+[sandbox]
+# Restrict network and filesystem access
+enabled = true
+writable_paths = ["src/", "tests/", "scripts/", "docs/"]
+network = false
+
+[instructions]
+# Points Codex to shared docs
+agents_md = "AGENTS.md"
+architecture = "ARCHITECTURE.md"
+
+[commands]
+verify = "bash scripts/verify.sh"
+lint_frontend = "cd frontend && npm run lint"
+lint_backend = "cd backend && ruff check ."
+test_frontend = "cd frontend && npm run test"
+test_backend = "cd backend && pytest"
+build = "cd frontend && npm run build"
